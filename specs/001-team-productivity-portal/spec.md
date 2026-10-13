@@ -8,6 +8,12 @@
 
 **Input**: User description: "Develop Portal, a team productivity portal. It allows multiple teams to have a single pane of glass to monitor for the Product and technology teams. It will allow different integration with third-party tool sets and build our own CMDB along with integration with ADO, New Relic and Azure SRE." Clarification: ADO and New Relic are read-only with links to source tools; users must also be able to ask SRE questions.
 
+## Clarifications
+
+### Session 2026-10-13
+
+- Q: How long should Portal retain a user's private SRE conversation so they can return to it and ask follow-up questions? → A: Keep only for the active session.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Monitor Team Delivery and Service Health (Priority: P1)
@@ -79,7 +85,7 @@ As a technology or Product team member, I want to ask SRE questions from Portal 
 
 1. **Given** a member selects an accessible team and service or incident, **When** they submit an SRE question, **Then** Portal shows the selected context, submits the question to the associated Azure SRE Agent, and displays a pending state followed by the response or an explicit failure.
 2. **Given** a successful answer, **When** the member reads it, **Then** they can distinguish the agent's assessment from source-reported facts and inspect supporting references when supplied; absent references and unavailable evidence are explicitly identified.
-3. **Given** a conversation with a previous response, **When** the member asks a follow-up, **Then** the conversation retains its permitted context and prior exchanges; choosing a different team or service starts a separate conversation.
+3. **Given** a conversation with a previous response, **When** the member asks a follow-up, **Then** the conversation retains its permitted context and prior exchanges for the active Portal session only; choosing a different team or service starts a separate conversation.
 4. **Given** a member requests remediation or a change to an external system, **When** Portal processes the request, **Then** it does not execute the change, states that the capability is advisory, and may provide recommended next steps or links for action outside Portal.
 5. **Given** an inaccessible service or context outside the selected team's authorized source scope, **When** a member attempts a question or opens a conversation, **Then** Portal denies access without disclosing restricted information or sending restricted context to the agent.
 6. **Given** an unavailable agent, incomplete response, or failed question, **When** the request ends, **Then** Portal presents an explicit failure or incomplete-response state rather than a fabricated answer, preserves the question, and offers retry without automatic duplicate submission.
@@ -138,7 +144,7 @@ As a Portal administrator or team owner, I want access governed by team membersh
 - **FR-018**: Connection failures MUST include an actionable failure reason and last successful refresh time where one exists; retained information MUST be marked stale or disconnected rather than presented as current.
 - **FR-019**: Connection secrets MUST NOT appear in team views, histories, SRE context, or user-visible failure messages; only administrators MUST be able to manage connection access.
 - **FR-020**: Users MUST be able to submit an SRE question with an explicit permitted team and optional service, incident, or investigation context, see pending and terminal states, and ask follow-up questions within the same conversation.
-- **FR-021**: SRE conversations MUST be private to their submitting user, constrained by current team and source access, and readable only while that access remains valid. Changing team or selected context MUST start a separate conversation.
+- **FR-021**: SRE conversations MUST be private to their submitting user, constrained by current team and source access, and readable only while that access remains valid. Conversation history MUST be available only for the active Portal session and MUST NOT be retained after it ends. Changing team or selected context MUST start a separate conversation.
 - **FR-022**: SRE responses MUST be labeled as agent assessments, show supporting references when supplied, and explicitly identify absent references, incomplete responses, and unavailable evidence.
 - **FR-023**: Portal MUST NOT create or update ADO work items, alter New Relic configuration, execute remediation, or permit the SRE question capability to change external systems in this release. Advisory questions and follow-ups are the only permitted interactive external capability.
 - **FR-024**: Failed SRE questions MUST show an explicit failure, preserve the question for user-initiated retry, and MUST NOT be automatically resubmitted.
@@ -157,7 +163,7 @@ As a Portal administrator or team owner, I want access governed by team membersh
 - **External Mapping**: An association between a connection-scoped external record identity and one CMDB item.
 - **Delivery Record**: Source-attributed work-item or pipeline information associated with a team and optionally a configuration item.
 - **Operational Record**: Source-attributed health, alert, incident, investigation, or performance information with observation time and optional CMDB association.
-- **SRE Conversation**: A user's scoped sequence of questions and agent responses, including context, request states, and evidence references.
+- **SRE Conversation**: A user's scoped sequence of questions and agent responses during the active Portal session, including context, request states, and evidence references.
 - **Change History Entry**: An attributable, timestamped record of a non-secret governance or inventory change.
 
 ## Success Criteria *(mandatory)*
@@ -186,5 +192,5 @@ As a Portal administrator or team owner, I want access governed by team membersh
 - Portal does not replace source tools, implement task management, send new incident notifications, or become an incident-response execution system in this release.
 - Each source remains authoritative for its reported delivery and operational signals; Portal is authoritative for its manually maintained inventory, ownership, and dependencies.
 - Owners, members, and administrators are initial roles; arbitrary custom role design and public unauthenticated views are outside this release.
-- Detailed retention and organizational compliance policies must be established during planning before production use; access and secret-protection requirements in this specification apply regardless of those choices.
-- The existing project constitution is an unfilled template, so no ratified project-specific governance constraints were available. Governance must be resolved before implementation planning is approved.
+- Change-history retention and organizational compliance policies must be established during planning before production use; access and secret-protection requirements in this specification apply regardless of those choices.
+- The project constitution sets Azure-native hosting, Entra ID/OIDC, managed identity, Key Vault, API-first, observability, and audit requirements; confirm concrete architecture and applicable scope during planning.
